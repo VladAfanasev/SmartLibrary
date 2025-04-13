@@ -24,4 +24,8 @@
       <ProjectReference Include="..\SmartLibrary.Domain\SmartLibrary.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Application\" />
+    </ItemGroup>
+
 </Project>
