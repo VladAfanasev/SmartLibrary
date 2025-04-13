@@ -1,17 +1,17 @@
 using MySql.Data.MySqlClient;
 using System.Data;
+using SmartLibrary.Application.Interfaces;
 
 namespace SmartLibrary.Infrastructure.Data;
 
-public class MySqlDatabase
+public class ApplicationDbContext : IApplicationDbContext
 {
     private readonly string _connectionString;
 
-    public MySqlDatabase(string connectionString)
+    public ApplicationDbContext(string connectionString)
     {
         _connectionString = connectionString;
     }
-
     public MySqlConnection GetConnection()
     {
         return new MySqlConnection(_connectionString);

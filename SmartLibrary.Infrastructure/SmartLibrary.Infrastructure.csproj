@@ -10,4 +10,8 @@
       <PackageReference Include="MySql.Data" Version="9.2.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\SmartLibrary.Application\SmartLibrary.Application.csproj" />
+    </ItemGroup>
+
 </Project>
