@@ -16,14 +16,20 @@ public class UserRepository : IUserRepository
 
     public async Task AddUserAsync(User user)
     {
-        const string query = "INSERT INTO Users (FirstName, Lastname, Email, PasswordHash, CreatedAt) VALUES (@FirstName, @LastName, @Email, @PasswordHash, @CreatedAt)";
+        const string query = @"
+        INSERT INTO Users (Email, PasswordHash, FirstName, LastName, IsActive, RegistrationDate, RenewalDate, MembershipTypeID) 
+        VALUES (@Email, @PasswordHash, @FirstName, @LastName, @IsActive, @RegistrationDate, @RenewalDate, @MembershipTypeID)";
+    
         var parameters = new Dictionary<string, object>
         {
-            { "@Firstname", user.FirstName },
-            { "@Lastname", user.LastName },
             { "@Email", user.Email },
             { "@PasswordHash", user.PasswordHash },
-            { "@CreatedAt", user.CreatedAt }
+            { "@FirstName", user.FirstName },
+            { "@LastName", user.LastName },
+            { "@IsActive", user.IsActive },
+            { "@RegistrationDate", user.RegistrationDate },
+            { "@RenewalDate", user.RenewalDate },
+            { "@MembershipTypeID", user.MembershipTypeID }
         };
 
         await Task.Run(() => _dbContext.ExecuteNonQuery(query, parameters));
@@ -44,7 +50,10 @@ public class UserRepository : IUserRepository
                 LastName = row["LastName"].ToString(),
                 Email = row["Email"].ToString(),
                 PasswordHash = row["PasswordHash"].ToString(),
-                CreatedAt = Convert.ToDateTime(row["CreatedAt"])
+                IsActive = Convert.ToBoolean(row["IsActive"]),
+                RegistrationDate = Convert.ToDateTime(row["RegistrationDate"]),
+                RenewalDate = Convert.ToDateTime(row["RenewalDate"]),
+                MembershipTypeID = Convert.ToInt32(row["MembershipTypeID"])
             });
         }
 
@@ -53,17 +62,86 @@ public class UserRepository : IUserRepository
 
     public async Task UpdateUserAsync(User user)
     {
-        const string query = "UPDATE Users SET FirstName = @FirstName, LastName = @LastName, Email = @Email, PasswordHash = @PasswordHash WHERE Id = @Id";
+        const string query = @"
+        UPDATE Users 
+        SET FirstName = @FirstName, 
+            LastName = @LastName, 
+            Email = @Email, 
+            PasswordHash = @PasswordHash,
+            IsActive = @IsActive,
+            RenewalDate = @RenewalDate,
+            MembershipTypeID = @MembershipTypeID
+        WHERE Id = @Id";
+        
         var parameters = new Dictionary<string, object>
         {
             { "@Id", user.Id },
             { "@FirstName", user.FirstName },
-            { "@Lastname", user.LastName },
+            { "@LastName", user.LastName },
             { "@Email", user.Email },
-            { "@PasswordHash", user.PasswordHash }
+            { "@PasswordHash", user.PasswordHash },
+            { "@IsActive", user.IsActive },
+            { "@RenewalDate", user.RenewalDate },
+            { "@MembershipTypeID", user.MembershipTypeID }
         };
 
         await Task.Run(() => _dbContext.ExecuteNonQuery(query, parameters));
+    }
+
+    public async Task<User> GetUserByIdAsync(int userId)
+    {
+        const string query = "SELECT * FROM Users WHERE Id = @Id";
+        var parameters = new Dictionary<string, object>
+        {
+            { "@Id", userId }
+        };
+        
+        var dataTable = await Task.Run(() => _dbContext.ExecuteQuery(query, parameters));
+        
+        if (dataTable.Rows.Count == 0)
+            return null;
+            
+        var row = dataTable.Rows[0];
+        return new User
+        {
+            Id = Convert.ToInt32(row["Id"]),
+            FirstName = row["FirstName"].ToString(),
+            LastName = row["LastName"].ToString(),
+            Email = row["Email"].ToString(),
+            PasswordHash = row["PasswordHash"].ToString(),
+            IsActive = Convert.ToBoolean(row["IsActive"]),
+            RegistrationDate = Convert.ToDateTime(row["RegistrationDate"]),
+            RenewalDate = Convert.ToDateTime(row["RenewalDate"]),
+            MembershipTypeID = Convert.ToInt32(row["MembershipTypeID"])
+        };
+    }
+
+    public async Task<User> GetUserByEmailAsync(string email)
+    {
+        const string query = "SELECT * FROM Users WHERE Email = @Email";
+        var parameters = new Dictionary<string, object>
+        {
+            { "@Email", email }
+        };
+        
+        var dataTable = await Task.Run(() => _dbContext.ExecuteQuery(query, parameters));
+        
+        if (dataTable.Rows.Count == 0)
+            return null;
+            
+        var row = dataTable.Rows[0];
+        return new User
+        {
+            Id = Convert.ToInt32(row["Id"]),
+            FirstName = row["FirstName"].ToString(),
+            LastName = row["LastName"].ToString(),
+            Email = row["Email"].ToString(),
+            PasswordHash = row["PasswordHash"].ToString(),
+            IsActive = Convert.ToBoolean(row["IsActive"]),
+            RegistrationDate = Convert.ToDateTime(row["RegistrationDate"]),
+            RenewalDate = Convert.ToDateTime(row["RenewalDate"]),
+            MembershipTypeID = Convert.ToInt32(row["MembershipTypeID"])
+        };
     }
 
     public async Task DeleteUserAsync(int userId)

@@ -10,45 +10,73 @@ public class ApplicationDbContext : IApplicationDbContext
 
     public ApplicationDbContext(string connectionString)
     {
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new ArgumentException("Connection string cannot be null or empty.", nameof(connectionString));
+        }
         _connectionString = connectionString;
     }
-    public MySqlConnection GetConnection()
+    private MySqlConnection GetConnection()
     {
         return new MySqlConnection(_connectionString);
     }
 
     public DataTable ExecuteQuery(string query, Dictionary<string, object>? parameters = null)
     {
-        using var connection = GetConnection();
-        using var command = new MySqlCommand(query, connection);
-        if (parameters != null)
+        if (string.IsNullOrWhiteSpace(query))
         {
-            foreach (var param in parameters)
-            {
-                command.Parameters.AddWithValue(param.Key, param.Value);
-            }
+            throw new ArgumentException("Query cannot be null or empty.", nameof(query));
         }
 
         var dataTable = new DataTable();
-        using var adapter = new MySqlDataAdapter(command);
-        adapter.Fill(dataTable);
+
+        try
+        {
+            using var connection = GetConnection();
+            using var command = new MySqlCommand(query, connection);
+            AddParameters(command, parameters);
+
+            using var adapter = new MySqlDataAdapter(command);
+            adapter.Fill(dataTable);
+        }
+        catch (Exception ex)
+        {
+            // Log the exception (use a logging framework or custom logging)
+            throw new DataException("An error occurred while executing the query.", ex);
+        }
 
         return dataTable;
     }
 
     public int ExecuteNonQuery(string query, Dictionary<string, object>? parameters = null)
     {
-        using var connection = GetConnection();
-        connection.Open();
-        using var command = new MySqlCommand(query, connection);
-        if (parameters != null)
+        if (string.IsNullOrWhiteSpace(query))
         {
-            foreach (var param in parameters)
-            {
-                command.Parameters.AddWithValue(param.Key, param.Value);
-            }
+            throw new ArgumentException("Query cannot be null or empty.", nameof(query));
         }
 
-        return command.ExecuteNonQuery();
+        try
+        {
+            using var connection = GetConnection();
+            connection.Open();
+            using var command = new MySqlCommand(query, connection);
+            AddParameters(command, parameters);
+
+            return command.ExecuteNonQuery();
+        }
+        catch (Exception ex)
+        {
+            // Log the exception (use a logging framework or custom logging)
+            throw new DataException("An error occurred while executing the non-query command.", ex);
+        }
+    }
+    private void AddParameters(MySqlCommand command, Dictionary<string, object>? parameters)
+    {
+        if (parameters == null) return;
+
+        foreach (var param in parameters)
+        {
+            command.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
+        }
     }
 }

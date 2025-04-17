@@ -1,0 +1,30 @@
+@model SmartLibrary.Web.Views.Shared._Layout
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"] - SmartLibrary</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/site.css" />
+</head>
+<body>
+<header>
+    <h1>SmartLibrary</h1>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/Users/Add">Add User</a>
+    </nav>
+</header>
+<main>
+    @RenderBody()
+</main>
+<footer>
+    <p>&copy; 2023 SmartLibrary</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,35 @@
+@page
+@model SmartLibrary.Web.Views.Users.Add
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Add User";
+}
+
+<h2>Add New User</h2>
+<form method="post">
+    <div>
+        <label for="FirstName">First Name:</label>
+        <input type="text" id="FirstName" name="FirstName" required />
+    </div>
+    <div>
+        <label for="LastName">Last Name:</label>
+        <input type="text" id="LastName" name="LastName" required />
+    </div>
+    <div>
+        <label for="Email">Email:</label>
+        <input type="email" id="Email" name="Email" required />
+    </div>
+    <div>
+        <label for="Password">Password:</label>
+        <input type="password" id="Password" name="Password" required />
+    </div>
+    <div>
+        <label for="MembershipTypeId">Membership Type:</label>
+        <select id="MembershipTypeId" name="MembershipTypeId">
+            <option value="1">Basic</option>
+            <option value="2">Premium</option>
+            <option value="3">Student</option>
+        </select>
+    </div>
+    <button type="submit">Add User</button>
+</form>

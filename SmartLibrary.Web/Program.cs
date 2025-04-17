@@ -8,8 +8,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddSingleton<IApplicationDbContext>(provider =>
-    new ApplicationDbContext(builder.Configuration.GetConnectionString("DefaultConnection")));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
+{
+    throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
+}
+
+builder.Services.AddSingleton<ApplicationDbContext>(provider => new ApplicationDbContext(connectionString));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 var app = builder.Build();
 
