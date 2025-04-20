@@ -1,26 +1,18 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=468884a5_002D6da2_002D4f71_002D863f_002D43a504877fab/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="RegisterUserAsync_ShouldCallAddUserAsync" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AExceptionDispatchInfo_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003FLibrary_003FApplication_0020Support_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FDecompilerCache_003Fdecompiler_003F3b602c2970174e6bb552033b8b15abe3c65000_003Fc8_003F66e0c7f7_003FExceptionDispatchInfo_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=17348698_002D7c5f_002D4bcf_002D8450_002D01dba89b3f25/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="UserServiceTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::EDCCBE4B-0251-49BE-8401-EA9D0C9DF015::net8.0::UnitTests.UserServiceTests.RegisterUserAsync_ShouldCallAddUserAsync&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::EDCCBE4B-0251-49BE-8401-EA9D0C9DF015::net8.0::UnitTests.Application.Services.UserServiceTests&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=61bd46c6_002D908d_002D4f26_002D9add_002D2fa4c0312931/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="RegisterUserAsync_ShouldCallAddUserAsync #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::EDCCBE4B-0251-49BE-8401-EA9D0C9DF015::net8.0::UnitTests.UserServiceTests.RegisterUserAsync_ShouldCallAddUserAsync&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d9ff9862_002Dc763_002D4994_002D814a_002D7bab0b6de42b/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Solution /&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=7e6cbd2f_002D92f8_002D4bdf_002Da394_002Dba57b02c80cd/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="RegisterUserAsync_WithEmptyFirstName_ShouldThrowArgumentException" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::EDCCBE4B-0251-49BE-8401-EA9D0C9DF015::net8.0::UnitTests.UserServiceTests.RegisterUserAsync_WithEmptyFirstName_ShouldThrowArgumentException&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=84d68a7a_002D7e88_002D48a3_002D9473_002Dffed6f73d971/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="RegisterUserAsync_WithInvalidEmailFormat_ShouldThrowArgumentException" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::EDCCBE4B-0251-49BE-8401-EA9D0C9DF015::net8.0::UnitTests.UserServiceTests.RegisterUserAsync_WithInvalidEmailFormat_ShouldThrowArgumentException&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8d081417_002Dde4e_002D41eb_002Dac46_002D16f3e74dc0b6/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="UserServiceTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::EDCCBE4B-0251-49BE-8401-EA9D0C9DF015::net8.0::UnitTests.UserServiceTests&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
-&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
+	
+	
+	
+	
+	
+	
+	
+	</wpf:ResourceDictionary>

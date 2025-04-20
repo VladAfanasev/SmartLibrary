@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
@@ -9,6 +9,43 @@
 
     <ItemGroup>
       <ProjectReference Include="..\SmartLibrary.Infrastructure\SmartLibrary.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Components/Pages\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Users\Add.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Users\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Counter.razor" />
+      <_ContentIncludedByDefault Remove="Pages\Error.razor" />
+      <_ContentIncludedByDefault Remove="Pages\Home.razor" />
+      <_ContentIncludedByDefault Remove="Pages\Weather.razor" />
+      <_ContentIncludedByDefault Remove="wwwroot\app.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\bootstrap\bootstrap.min.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\bootstrap\bootstrap.min.css.map" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\blazored-toast.min.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\favicon.png" />
+      <_ContentIncludedByDefault Remove="Pages\Test.razor" />
+      <_ContentIncludedByDefault Remove="Pages\Users\Add.razor" />
+      <_ContentIncludedByDefault Remove="Pages\Users\Index.razor" />
+      <_ContentIncludedByDefault Remove="Views\Shared\_Layout.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Users\Add.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Blazored.Toast" Version="4.2.1" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.2" />
+        
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="Views\Home\Index.cshtml" />
+      <AdditionalFiles Include="Views\Home\Privacy.cshtml" />
+      <AdditionalFiles Include="Views\Shared\Error.cshtml" />
+      <AdditionalFiles Include="Views\Shared\_Layout.cshtml" />
+      <AdditionalFiles Include="Views\Shared\_ValidationScriptsPartial.cshtml" />
+      <AdditionalFiles Include="Views\_ViewImports.cshtml" />
+      <AdditionalFiles Include="Views\_ViewStart.cshtml" />
     </ItemGroup>
 
     <ItemGroup>

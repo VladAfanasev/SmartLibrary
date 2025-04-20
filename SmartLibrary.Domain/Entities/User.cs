@@ -1,6 +1,7 @@
+using SmartLibrary.Domain.Interfaces;
 namespace SmartLibrary.Domain.Entities;
 
-public class User
+public class User: IUser
 {
     public int Id { get; set; }
     public required string FirstName { get; set; }

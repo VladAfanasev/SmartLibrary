@@ -1,35 +1,58 @@
-@page
-@model SmartLibrary.Web.Views.Users.Add
+@model UserViewModel
 @{
-    Layout = "/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Add User";
 }
 
-<h2>Add New User</h2>
-<form method="post">
-    <div>
-        <label for="FirstName">First Name:</label>
-        <input type="text" id="FirstName" name="FirstName" required />
+<h1>Add User</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Add" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="FirstName" class="control-label"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="LastName" class="control-label"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="MembershipTypeId" class="control-label"></label>
+                <select asp-for="MembershipTypeId" class="form-control">
+                    <option value="">-- Select Membership Type --</option>
+                    <option value="1">Standard</option>
+                    <option value="2">Premium</option>
+                    <option value="3">Student</option>
+                </select>
+                <span asp-validation-for="MembershipTypeId" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mb-3">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
     </div>
-    <div>
-        <label for="LastName">Last Name:</label>
-        <input type="text" id="LastName" name="LastName" required />
-    </div>
-    <div>
-        <label for="Email">Email:</label>
-        <input type="email" id="Email" name="Email" required />
-    </div>
-    <div>
-        <label for="Password">Password:</label>
-        <input type="password" id="Password" name="Password" required />
-    </div>
-    <div>
-        <label for="MembershipTypeId">Membership Type:</label>
-        <select id="MembershipTypeId" name="MembershipTypeId">
-            <option value="1">Basic</option>
-            <option value="2">Premium</option>
-            <option value="3">Student</option>
-        </select>
-    </div>
-    <button type="submit">Add User</button>
-</form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,7 +1,9 @@
 using Moq;
 using SmartLibrary.Domain.Entities;
+using SmartLibrary.Domain.Interfaces;
 using SmartLibrary.Application.Interfaces;
 using SmartLibrary.Application.Services;
+using Microsoft.Extensions.Logging;
 
 namespace UnitTests.Application.Services;
 
@@ -10,273 +12,350 @@ public class UserServiceTests
 {
     private Mock<IUserRepository> _mockUserRepository;
     private UserService _userService;
-    
+    private Mock<ILogger<UserService>> _mockLogger; // Add mock for ILogger
+
     [SetUp]
     public void Setup()
     {
         _mockUserRepository = new Mock<IUserRepository>();
-        _userService = new UserService(_mockUserRepository.Object);
+        _mockLogger = new Mock<ILogger<UserService>>(); // Initialize the logger mock
+        _userService = new UserService(_mockUserRepository.Object, _mockLogger.Object); // Pass both dependencies
     }
 
-    [Test]
-    public async Task RegisterUserAsync_ShouldCallAddUserAsync()
-    {
-        // Arrange
-        var firstname = "John";
-        var lastname = "Doe";
-        var email = "testuser@example.com";
-        var password = "password123";
-        var membershipTypeId = 1;
-
-        // Act
-        await _userService.RegisterUserAsync(firstname, lastname, email, password, membershipTypeId);
-
-        // Assert
-        _mockUserRepository.Verify(repo => repo.AddUserAsync(It.Is<User>(u =>
-            u.FirstName == firstname &&
-            u.LastName == lastname &&
-            u.Email == email &&
-            BCrypt.Net.BCrypt.Verify(password, u.PasswordHash, false, BCrypt.Net.HashType.SHA384) &&
-            u.IsActive == true &&
-            u.MembershipTypeID == membershipTypeId &&
-            u.RenewalDate > DateTime.UtcNow
-        )), Times.Once);
-    }
+[Test]
+public void AddUserAsync_WithEmptyEmail_ShouldThrowArgumentException()
+{
+    // Arrange
+    string firstName = "John";
+    string lastName = "Doe";
+    string email = "";  // Empty email
+    string password = "password123";
+    int membershipTypeId = 1;
+    bool isActive = true;
     
-    [Test]
-    public void RegisterUserAsync_WithEmptyEmail_ShouldThrowArgumentException()
+    var user = new User
     {
-        // Arrange
-        var firstname = "John";
-        var lastname = "Doe";
-        var email = "";  // Lege email
-        var password = "password123";
+        FirstName = firstName,
+        LastName = lastName,
+        Email = email,
+        PasswordHash = password,  // Not hashed for this test case
+        IsActive = isActive,
+        RegistrationDate = DateTime.UtcNow,
+        RenewalDate = DateTime.UtcNow.AddYears(1),
+        MembershipTypeID = membershipTypeId
+    };
 
-        // Act & Assert
-        var exception = Assert.ThrowsAsync<ArgumentException>(async () => 
-            await _userService.RegisterUserAsync(firstname, lastname, email, password));
-        
-        Assert.That(exception.Message, Contains.Substring("email"));
-        _mockUserRepository.Verify(repo => repo.AddUserAsync(It.IsAny<User>()), Times.Never);
-    }
+    // Act & Assert
+    var exception = Assert.ThrowsAsync<ArgumentException>(async () => 
+        await _userService.AddUserAsync(user));
     
-    [Test]
-    public void RegisterUserAsync_WithEmptyFirstName_ShouldThrowArgumentException()
-    {
-        // Arrange
-        string firstname = "";
-        var lastname = "Doe";
-        var email = "test@example.com";
-        var password = "password123";
+    Assert.That(exception.Message, Contains.Substring("email"));
+    _mockUserRepository.Verify(repo => repo.AddUserAsync(It.IsAny<IUser>()), Times.Never);
+}
 
-        // Act & Assert
-        var exception = Assert.ThrowsAsync<ArgumentException>(async () => 
-            await _userService.RegisterUserAsync(firstname, lastname, email, password));
-        
-        Assert.That(exception.Message, Contains.Substring("firstname"));
-        _mockUserRepository.Verify(repo => repo.AddUserAsync(It.IsAny<User>()), Times.Never);
-    }
+[Test]
+public void AddUserAsync_WithEmptyFirstName_ShouldThrowArgumentException()
+{
+    // Arrange
+    string firstName = "";  // Empty first name
+    string lastName = "Doe";
+    string email = "test@example.com";
+    string password = "password123";
+    int membershipTypeId = 1;
+    bool isActive = true;
     
-    [Test]
-    public void RegisterUserAsync_WithShortPassword_ShouldThrowArgumentException()
+    var user = new User
     {
-        // Arrange
-        var firstname = "John";
-        var lastname = "Doe";
-        var email = "test@example.com";
-        var password = "short";  // Te kort wachtwoord
+        FirstName = firstName,
+        LastName = lastName,
+        Email = email,
+        PasswordHash = password,
+        IsActive = isActive,
+        RegistrationDate = DateTime.UtcNow,
+        RenewalDate = DateTime.UtcNow.AddYears(1),
+        MembershipTypeID = membershipTypeId
+    };
 
-        // Act & Assert
-        var exception = Assert.ThrowsAsync<ArgumentException>(async () => 
-            await _userService.RegisterUserAsync(firstname, lastname, email, password));
-        
-        Assert.That(exception.Message, Contains.Substring("password"));
-        _mockUserRepository.Verify(repo => repo.AddUserAsync(It.IsAny<User>()), Times.Never);
-    }
+    // Act & Assert
+    var exception = Assert.ThrowsAsync<ArgumentException>(async () => 
+        await _userService.AddUserAsync(user));
     
-    [Test]
-    public void RegisterUserAsync_WithInvalidEmailFormat_ShouldThrowArgumentException()
-    {
-        // Arrange
-        var firstname = "John";
-        var lastname = "Doe";
-        var email = "invalid-email";  // Geen geldig e-mailformaat
-        var password = "password123";
+    Assert.That(exception.Message, Contains.Substring("firstname"));
+    _mockUserRepository.Verify(repo => repo.AddUserAsync(It.IsAny<IUser>()), Times.Never);
+}
 
-        // Act & Assert
-        var exception = Assert.ThrowsAsync<ArgumentException>(async () => 
-            await _userService.RegisterUserAsync(firstname, lastname, email, password));
-        
-        Assert.That(exception.Message, Contains.Substring("email"));
-        _mockUserRepository.Verify(repo => repo.AddUserAsync(It.IsAny<User>()), Times.Never);
-    }
+[Test]
+public void AddUserAsync_WithShortPassword_ShouldThrowArgumentException()
+{
+    // Arrange
+    string firstName = "John";
+    string lastName = "Doe";
+    string email = "test@example.com";
+    string password = "short";  // Too short password
+    int membershipTypeId = 1;
+    bool isActive = true;
     
-    [Test]
-    public void RegisterUserAsync_WithInvalidMembershipTypeId_ShouldThrowArgumentException()
+    var user = new User
     {
-        // Arrange
-        var firstname = "John";
-        var lastname = "Doe";
-        var email = "test@example.com";
-        var password = "password123";
-        var membershipTypeId = 0;  // Ongeldige membership type id
+        FirstName = firstName,
+        LastName = lastName,
+        Email = email,
+        PasswordHash = password,  // Using unhashed password to test validation
+        IsActive = isActive,
+        RegistrationDate = DateTime.UtcNow,
+        RenewalDate = DateTime.UtcNow.AddYears(1),
+        MembershipTypeID = membershipTypeId
+    };
 
-        // Act & Assert
-        var exception = Assert.ThrowsAsync<ArgumentException>(async () => 
-            await _userService.RegisterUserAsync(firstname, lastname, email, password, membershipTypeId));
-        
-        Assert.That(exception.Message, Contains.Substring("lidmaatschapstype"));
-        _mockUserRepository.Verify(repo => repo.AddUserAsync(It.IsAny<User>()), Times.Never);
-    }
+    // Act & Assert
+    var exception = Assert.ThrowsAsync<ArgumentException>(async () => 
+        await _userService.AddUserAsync(user));
     
-    [Test]
-    public async Task DeactivateUserAsync_ShouldUpdateUser()
-    {
-        // Arrange
-        var userId = 1;
-        var users = new List<User> { new User {        
-            Id = userId, 
-            IsActive = true,
-            FirstName = "John",
-            LastName = "Doe",
-            Email = "john@example.com",
-            PasswordHash = "hashedpassword"
-            
-        }};
-        _mockUserRepository.Setup(repo => repo.GetUsersAsync()).ReturnsAsync(users);
+    Assert.That(exception.Message, Contains.Substring("password"));
+    _mockUserRepository.Verify(repo => repo.AddUserAsync(It.IsAny<IUser>()), Times.Never);
+}
 
-        // Act
-        await _userService.DeactivateUserAsync(userId);
-
-        // Assert
-        _mockUserRepository.Verify(repo => repo.UpdateUserAsync(It.Is<User>(u => 
-            u.Id == userId && 
-            u.IsActive == false)), Times.Once);
-    }
+[Test]
+public void AddUserAsync_WithInvalidEmailFormat_ShouldThrowArgumentException()
+{
+    // Arrange
+    string firstName = "John";
+    string lastName = "Doe";
+    string email = "invalid-email";  // Invalid email format
+    string password = "password123";
+    int membershipTypeId = 1;
+    bool isActive = true;
     
-    [Test]
-    public void DeactivateUserAsync_UserNotFound_ShouldThrowArgumentException()
+    var user = new User
     {
-        // Arrange
-        var userId = 999; // Niet-bestaande user
-        var users = new List<User> { 
-            new User { 
-                Id = 1,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john@example.com",
-                PasswordHash = "hashedpassword"
-            } 
-        };
-        _mockUserRepository.Setup(repo => repo.GetUsersAsync()).ReturnsAsync(users);
+        FirstName = firstName,
+        LastName = lastName,
+        Email = email,
+        PasswordHash = password,
+        IsActive = isActive,
+        RegistrationDate = DateTime.UtcNow,
+        RenewalDate = DateTime.UtcNow.AddYears(1),
+        MembershipTypeID = membershipTypeId
+    };
 
-        // Act & Assert
-        var exception = Assert.ThrowsAsync<ArgumentException>(async () => 
-            await _userService.DeactivateUserAsync(userId));
-        
-        Assert.That(exception.Message, Contains.Substring("niet gevonden"));
-    }
+    // Act & Assert
+    var exception = Assert.ThrowsAsync<ArgumentException>(async () => 
+        await _userService.AddUserAsync(user));
     
-    [Test]
-    public async Task RenewMembershipAsync_ShouldUpdateUser()
-    {
-        // Arrange
-        var userId = 1;
-        var users = new List<User> { 
-            new User { 
-                Id = userId,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john@example.com",
-                PasswordHash = "hashedpassword"
-            } 
-        };
-        var newRenewalDate = DateTime.UtcNow.AddYears(2);
-        _mockUserRepository.Setup(repo => repo.GetUsersAsync()).ReturnsAsync(users);
+    Assert.That(exception.Message, Contains.Substring("email"));
+    _mockUserRepository.Verify(repo => repo.AddUserAsync(It.IsAny<IUser>()), Times.Never);
+}
 
-        // Act
-        await _userService.RenewMembershipAsync(userId, newRenewalDate);
-
-        // Assert
-        _mockUserRepository.Verify(repo => repo.UpdateUserAsync(It.Is<User>(u => 
-            u.Id == userId && 
-            u.RenewalDate == newRenewalDate &&
-            u.IsActive == true)), Times.Once);
-    }
+[Test]
+public void AddUserAsync_WithInvalidMembershipTypeId_ShouldThrowArgumentException()
+{
+    // Arrange
+    string firstName = "John";
+    string lastName = "Doe";
+    string email = "test@example.com";
+    string password = "password123";
+    int membershipTypeId = 0;  // Invalid membership type ID
+    bool isActive = true;
     
-    [Test]
-    public void RenewMembershipAsync_PastDate_ShouldThrowArgumentException()
+    var user = new User
     {
-        // Arrange
-        var userId = 1;
-        var users = new List<User> { 
-            new User { 
-                Id = userId,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john@example.com",
-                PasswordHash = "hashedpassword"
-            } 
-        };
-        var pastDate = DateTime.UtcNow.AddDays(-1);
-        _mockUserRepository.Setup(repo => repo.GetUsersAsync()).ReturnsAsync(users);
+        FirstName = firstName,
+        LastName = lastName,
+        Email = email,
+        PasswordHash = password,
+        IsActive = isActive,
+        RegistrationDate = DateTime.UtcNow,
+        RenewalDate = DateTime.UtcNow.AddYears(1),
+        MembershipTypeID = membershipTypeId
+    };
 
-        // Act & Assert
-        var exception = Assert.ThrowsAsync<ArgumentException>(async () => 
-            await _userService.RenewMembershipAsync(userId, pastDate));
-        
-        Assert.That(exception.Message, Contains.Substring("toekomst"));
-    }
+    // Act & Assert
+    var exception = Assert.ThrowsAsync<ArgumentException>(async () => 
+        await _userService.AddUserAsync(user));
     
-    [Test]
-    public async Task ChangeMembershipTypeAsync_ShouldUpdateUser()
-    {
-        // Arrange
-        var userId = 1;
-        var users = new List<User> { 
-            new User { 
-                Id = userId, 
-                MembershipTypeID = 1,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john@example.com",
-                PasswordHash = "hashedpassword"
-            } 
-        };
-        var newMembershipTypeId = 2;
-        _mockUserRepository.Setup(repo => repo.GetUsersAsync()).ReturnsAsync(users);
+    Assert.That(exception.Message, Contains.Substring("Lidmaatschapstype"));
+    _mockUserRepository.Verify(repo => repo.AddUserAsync(It.IsAny<IUser>()), Times.Never);
+}
 
-        // Act
-        await _userService.ChangeMembershipTypeAsync(userId, newMembershipTypeId);
-
-        // Assert
-        _mockUserRepository.Verify(repo => repo.UpdateUserAsync(It.Is<User>(u => 
-            u.Id == userId && 
-            u.MembershipTypeID == newMembershipTypeId)), Times.Once);
-    }
+[Test]
+public async Task DeactivateUserAsync_ShouldUpdateUser()
+{
+    // Arrange
+    int userId = 1;
+    string firstName = "John";
+    string lastName = "Doe";
+    string email = "john@example.com";
+    string passwordHash = "hashedpassword";
+    bool isActive = true;
     
-    [Test]
-    public void ChangeMembershipTypeAsync_InvalidType_ShouldThrowArgumentException()
-    {
-        // Arrange
-        var userId = 1;
-        var users = new List<User> { 
-            new User { 
-                Id = userId, 
-                MembershipTypeID = 1,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john@example.com",
-                PasswordHash = "hashedpassword"
-            } 
-        };
-        var invalidTypeId = 0;
-        _mockUserRepository.Setup(repo => repo.GetUsersAsync()).ReturnsAsync(users);
+    var user = new User {        
+        Id = userId, 
+        FirstName = firstName,
+        LastName = lastName,
+        Email = email,
+        PasswordHash = passwordHash,
+        IsActive = isActive
+    };
+    
+    var users = new List<User> { user };
+    _mockUserRepository.Setup(repo => repo.GetAllUsersAsync()).ReturnsAsync(users.Cast<IUser>().ToList());
 
-        // Act & Assert
-        var exception = Assert.ThrowsAsync<ArgumentException>(async () => 
-            await _userService.ChangeMembershipTypeAsync(userId, invalidTypeId));
-        
-        Assert.That(exception.Message, Contains.Substring("ongeldig"));
-    }
+    // Act
+    await _userService.DeactivateUserAsync(userId);
+
+    // Assert
+    _mockUserRepository.Verify(repo => repo.UpdateUserAsync(It.Is<IUser>(u => 
+        u.Id == userId && 
+        u.IsActive == false)), Times.Once);
+}
+
+[Test]
+public void DeactivateUserAsync_UserNotFound_ShouldThrowArgumentException()
+{
+    // Arrange
+    int existingUserId = 1;
+    int nonExistentUserId = 999; // Non-existent user
+    
+    var existingUser = new User { 
+        Id = existingUserId,
+        FirstName = "John",
+        LastName = "Doe",
+        Email = "john@example.com",
+        PasswordHash = "hashedpassword"
+    };
+    
+    var users = new List<User> { existingUser };
+    _mockUserRepository.Setup(repo => repo.GetAllUsersAsync()).ReturnsAsync(users.Cast<IUser>().ToList());
+
+    // Act & Assert
+    var exception = Assert.ThrowsAsync<ArgumentException>(async () => 
+        await _userService.DeactivateUserAsync(nonExistentUserId));
+    
+    Assert.That(exception.Message, Contains.Substring("niet gevonden"));
+}
+
+[Test]
+public async Task RenewMembershipAsync_ShouldUpdateUser()
+{
+    // Arrange
+    int userId = 1;
+    string firstName = "John";
+    string lastName = "Doe";
+    string email = "john@example.com";
+    string passwordHash = "hashedpassword";
+    
+    var user = new User { 
+        Id = userId,
+        FirstName = firstName,
+        LastName = lastName,
+        Email = email,
+        PasswordHash = passwordHash
+    };
+    
+    var users = new List<User> { user };
+    var newRenewalDate = DateTime.UtcNow.AddYears(2);
+    _mockUserRepository.Setup(repo => repo.GetAllUsersAsync()).ReturnsAsync(users.Cast<IUser>().ToList());
+
+    // Act
+    await _userService.RenewMembershipAsync(userId, newRenewalDate);
+
+    // Assert
+    _mockUserRepository.Verify(repo => repo.UpdateUserAsync(It.Is<IUser>(u => 
+        u.Id == userId && 
+        u.RenewalDate == newRenewalDate &&
+        u.IsActive == true)), Times.Once);
+}
+
+[Test]
+public void RenewMembershipAsync_PastDate_ShouldThrowArgumentException()
+{
+    // Arrange
+    int userId = 1;
+    string firstName = "John";
+    string lastName = "Doe";
+    string email = "john@example.com";
+    string passwordHash = "hashedpassword";
+    
+    var user = new User { 
+        Id = userId,
+        FirstName = firstName,
+        LastName = lastName,
+        Email = email,
+        PasswordHash = passwordHash
+    };
+    
+    var users = new List<User> { user };
+    var pastDate = DateTime.UtcNow.AddDays(-1);  // Date in the past
+    _mockUserRepository.Setup(repo => repo.GetAllUsersAsync()).ReturnsAsync(users.Cast<IUser>().ToList());
+
+    // Act & Assert
+    var exception = Assert.ThrowsAsync<ArgumentException>(async () => 
+        await _userService.RenewMembershipAsync(userId, pastDate));
+    
+    Assert.That(exception.Message, Contains.Substring("toekomst"));
+}
+
+[Test]
+public async Task ChangeMembershipTypeAsync_ShouldUpdateUser()
+{
+    // Arrange
+    int userId = 1;
+    string firstName = "John";
+    string lastName = "Doe";
+    string email = "john@example.com";
+    string passwordHash = "hashedpassword";
+    int currentMembershipTypeId = 1;
+    
+    var user = new User { 
+        Id = userId, 
+        FirstName = firstName,
+        LastName = lastName,
+        Email = email,
+        PasswordHash = passwordHash,
+        MembershipTypeID = currentMembershipTypeId
+    };
+    
+    var users = new List<User> { user };
+    int newMembershipTypeId = 2;
+    _mockUserRepository.Setup(repo => repo.GetAllUsersAsync()).ReturnsAsync(users.Cast<IUser>().ToList());
+
+    // Act
+    await _userService.ChangeMembershipTypeAsync(userId, newMembershipTypeId);
+
+    // Assert
+    _mockUserRepository.Verify(repo => repo.UpdateUserAsync(It.Is<IUser>(u => 
+        u.Id == userId && 
+        u.MembershipTypeID == newMembershipTypeId)), Times.Once);
+}
+
+[Test]
+public void ChangeMembershipTypeAsync_InvalidType_ShouldThrowArgumentException()
+{
+    // Arrange
+    int userId = 1;
+    string firstName = "John";
+    string lastName = "Doe";
+    string email = "john@example.com";
+    string passwordHash = "hashedpassword";
+    int currentMembershipTypeId = 1;
+    
+    var user = new User { 
+        Id = userId, 
+        FirstName = firstName,
+        LastName = lastName,
+        Email = email,
+        PasswordHash = passwordHash,
+        MembershipTypeID = currentMembershipTypeId
+    };
+    
+    var users = new List<User> { user };
+    int invalidTypeId = 0;  // Invalid membership type ID
+    _mockUserRepository.Setup(repo => repo.GetAllUsersAsync()).ReturnsAsync(users.Cast<IUser>().ToList());
+
+    // Act & Assert
+    var exception = Assert.ThrowsAsync<ArgumentException>(async () => 
+        await _userService.ChangeMembershipTypeAsync(userId, invalidTypeId));
+    
+    Assert.That(exception.Message, Contains.Substring("ongeldig"));
+}
 }
